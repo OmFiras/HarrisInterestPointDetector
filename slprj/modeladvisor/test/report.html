@@ -1,0 +1,955 @@
+<html>  <head>  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Model Advisor Report for 'test'</title>  
+<style><!--
+H3 {font-size:14pt; font-weight:200;}  
+H4 {font-size:9pt; font-weight:normal;}  
+
+--></style>  
+<script>
+<!--
+
+function expandGroup(caller) {
+var targetId, targetElement ;
+targetId = caller.id + "d" ;
+targetElement = document.getElementById(targetId) ;
+if (targetElement.style.display == "none") {
+   targetElement.style.display = "" ;
+   caller.src = "minus.png" ;
+ } else {
+   targetElement.style.display = "none" ;
+   caller.src = "plus.png" ;
+ }
+}
+
+function updateVisibleChecks()
+{
+
+var showFailed = document.getElementById("Failed Checkbox").checked;
+var showPassed = document.getElementById("Passed Checkbox").checked;
+var showWarning = document.getElementById("Warning Checkbox").checked;
+var showNotRun = document.getElementById("Not Run Checkbox").checked;
+var allshowFlag = showFailed && showPassed && showWarning && showNotRun;
+var passedChecks = document.getElementsByName("Passed Check");
+var failedChecks = document.getElementsByName("Failed Check");
+var warningChecks = document.getElementsByName("Warning Check");
+var notRunChecks = document.getElementsByName("Not Run Check");
+var i;
+
+if(failedChecks==null){failedChecks = 0;}
+if(passedChecks==null){passedChecks = 0;}
+if(warningChecks==null){warningChecks = 0;}
+if(notRunChecks==null){notRunChecks = 0;}
+
+for(i = 0; i < passedChecks.length; i++)
+{
+    passedChecks[i].style.display = "none";
+}     
+for(i = 0; i < failedChecks.length; i++)
+{
+    failedChecks[i].style.display = "none";
+}     
+for(i = 0; i < warningChecks.length; i++)
+{
+    warningChecks[i].style.display = "none";
+}     
+for(i = 0; i < notRunChecks.length; i++)
+{
+    notRunChecks[i].style.display = "none";
+}     
+
+if(showFailed || allshowFlag)
+{
+     for(i = 0; i < failedChecks.length; i++)
+    {
+		failedChecks[i].style.display = "";
+    }     
+}
+
+if(showPassed || allshowFlag)
+{
+     for(i = 0; i < passedChecks.length; i++)
+    {
+		passedChecks[i].style.display = "";
+    }     
+}
+
+if(showWarning || allshowFlag)
+{
+     for(i = 0; i < warningChecks.length; i++)
+    {
+		warningChecks[i].style.display = "";
+    }     
+}
+
+if(showNotRun || allshowFlag)
+{
+     for(i = 0; i < notRunChecks.length; i++)
+    {
+		notRunChecks[i].style.display = "";
+    }     
+}
+}
+
+function MATableShrink(o,tagNameStr,tagNameStr1)
+{
+
+var temp = document.getElementsByName(tagNameStr);
+if (temp[0].style.display == "") 
+{
+    temp[0].style.display = "none";
+    o.innerHTML = '<img src="plus.png"/>';
+    temp = document.getElementsByName(tagNameStr1);
+    if(temp[0] != undefined)
+    {
+        temp[0].style.display = "";
+    }
+} 
+else 
+{
+    temp[0].style.display = "";
+    o.innerHTML = '<img src="minus.png"/>';
+    temp = document.getElementsByName(tagNameStr1);
+    if(temp[0] != undefined)
+    {
+        temp[0].style.display = "none";
+    }
+}
+}
+
+function selectGroup(group) {
+var i; 
+// when groupid is o_1ck, find every thing start with o_1.
+var targetId = new RegExp(group.id.substr(0,group.id.length-2) + "\\w+");
+//var targetId = /out_2\w+/;
+var matchResult;
+var elementsArray = document.forms[0].elements;
+for (i=0; i< elementsArray.length; i++) {
+  if (elementsArray[i].type == "checkbox")  {
+   if (elementsArray[i].disabled == false) {     
+     //if ((elementsArray[i].id == targetId) ) {
+     matchResult = elementsArray[i].id.match(targetId);
+     if (matchResult != null) {
+       elementsArray[i].checked=group.checked;
+     }
+    }
+   }
+}  
+}
+
+// set focus to first text element of first form in the page
+function sf(){
+var i; //must declare local loop counter to avoid default global declaration
+var elementsArray = document.forms[0].elements;
+for(i=0; i < elementsArray.length; i++) {
+  if ((elementsArray[i].type == "text") && ((elementsArray[i].name != "Model"))) {
+    elementsArray[i].focus();
+    break;    
+  }
+ }
+}
+
+//set initial state for each selection element in the page
+function initiateState() {
+var i;
+var elementsArray = document.forms[0].elements;
+for (i=0; i< elementsArray.length; i++) {
+  if ((elementsArray[i].type == "select-one") ) {
+    elementsArray[i].click();
+  }
+}  
+}
+
+//translate special characters into escape sequence
+function subEncode(srcString) {
+  var srcList = new Array('z', '(', ')', '?', '&', '$', '|', '^', '{' , '}','\'','\"','\\', '[', ']', '/', '#', '<', '>', '.', '+', '=', '~', '@', '%', '`', ',', ' ', '*', ':', '!', ':');
+  var dstList = new Array('z0','z1','z2','z3','z4','z5','z6','z7','z8','z9','za','zb','zc','zd','ze','zf','zg','zh','zi','zj','zk','zl','zm','zn','zo','zp','zq','zs','zt','zu','zv','zw');
+  var dstString;
+  var i; //must declare local loop counter to avoid default global declaration
+  dstString = '';
+  for (i=0; i < srcString.length; i++) {
+   c = srcString.charAt(i);
+   newc = c;
+   for (j=0; j < srcList.length; j++) {
+     if (c==srcList[j]) {
+       newc = dstList[j];
+       }
+     }
+   dstString+= newc;
+   }
+  return dstString;
+}
+  
+// encode each "text" field of the form
+function htmlEncode(form) {
+var elementsArray = form.elements;
+var i; //must declare loop counter to avoid default global declaration
+for(i=0; i < elementsArray.length; i++) {
+  if ((elementsArray[i].type == "text") || (elementsArray[i].type == "select") || (elementsArray[i].type == "submit")) {
+    elementsArray[i].value=subEncode(elementsArray[i].value);
+  }
+}
+//  form.MatchCase.click();
+}
+
+// make sure only one parameter is checked on update paramater page
+function uncheckOthers(form, thischeckbox) {
+var elementsArray = form.elements;
+var i; //must declare loop counter to avoid default global declaration
+if (thischeckbox.checked) {
+  for(i=0; i < elementsArray.length; i++) {
+    if (elementsArray[i].type == "checkbox") 
+      if ((elementsArray[i].checked) && (elementsArray[i].name.substring(0,12)=="paramChecked") && (elementsArray[i].name != thischeckbox.name)) {
+        elementsArray[i].checked=false;
+      }
+    }
+  }
+}
+
+// select/unselect all found objects in the table
+function selectAll(form, select) {
+var elementsArray = form.elements;
+var i; //must declare loop counter to avoid default global declaration
+for(i=0; i < elementsArray.length; i++) {
+  if (elementsArray[i].type == "checkbox")  {
+   if (elementsArray[i].disabled == false) {
+    if (select) 
+      elementsArray[i].checked=true
+    else
+      elementsArray[i].checked=false
+   }
+  }
+}
+}
+
+// -->
+</script></head>  
+<body>  
+<table width="100%" border="0"><tr><td colspan="2" align="center"><b>Report name: Model Advisor - <font color="#800000">By Product</font></b>
+</td>
+</tr>
+<tr><td align="left"><b>Simulink version: <font color="#800000">7.3</font></b>
+</td>
+<td align="right"><b>Model version: <font color="#800000">1.2</font></b>
+</td>
+</tr>
+<tr><td align="left"><b>System: <font color="#800000">test</font></b>
+</td>
+<td align="right"><b>Current run: <font color="#800000">26-May-2013 08:47:59</font></b>
+</td>
+</tr>
+</table>
+<br /><font color="#800000"><b>Run Summary</b></font><br /><table width="60%" border="0"><tr><td align="left"><b><input  type="checkbox" onClick="updateVisibleChecks()" id ="Passed Checkbox"  checked = "checked" /> Pass</b>
+</td>
+<td align="left"><b><input  type="checkbox" onClick="updateVisibleChecks()" id ="Failed Checkbox"  checked = "checked" />Fail</b>
+</td>
+<td align="left"><b><input  type="checkbox" onClick="updateVisibleChecks()" id ="Warning Checkbox"  checked = "checked" />Warning</b>
+</td>
+<td align="left"><b><input  type="checkbox" onClick="updateVisibleChecks()" id ="Not Run Checkbox"  checked = "checked" />Not Run</b>
+</td>
+<td align="left"><b>Total</b>
+</td>
+</tr>
+<tr><td align="left">&nbsp;&nbsp;<img src="task_passed.png"/> 60</td>
+<td align="left">&nbsp;&nbsp;<img src="task_failed.png"/> 0</td>
+<td align="left">&nbsp;&nbsp;<img src="task_warning.png"/> 28</td>
+<td align="left">&nbsp;&nbsp;<img src="icon_task.png"/> 18</td>
+<td align="left"> 106</td>
+</tr>
+</table>
+<!-- Compile Status Flag -->
+<!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start --><span onclick="MATableShrink(this,'By Product','SubResults_By Product')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->By Product</b></font><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "By Product"  id = "By Product"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; <span onclick="MATableShrink(this,'Simulink','SubResults_Simulink')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->Simulink</b></font><span name = "SubResults_Simulink"  style="display:none"  id= "SubResults_Simulink" >&nbsp;&nbsp;<img src="task_passed.png" />9&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />3&nbsp;&nbsp;<img src="icon_task.png" />5</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "Simulink"  id = "Simulink"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_1" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check model, local libraries, and referenced models for known upgrade issues</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_2" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify unconnected lines, input ports, and output ports</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />The following unconnected lines and/or ports are likely to cause problems propagating signal attributes (e.g., data type, sample time, dimensions).  Note that ports connected to ground/terminator blocks pass this check.<p /><p /><a href="matlab: modeladvisorprivate hiliteSystem test 2_1">test/Corner Detection</a><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_3" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check root model Inport block specifications</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_8" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check optimization settings</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><p>You should turn on the following <a href="matlab: modeladvisorprivate openSimprmAdvancedPage test Optimization"> optimization</a>(s):</p><table border="0" width="100%"><tr> <td width="20%" align="center"> </td> <td width="80%" align="left"><li>Inline parameters</li></td></tr><tr> <td width="20%" align="center"> </td> <td width="80%" align="left"><li>Ignore integer downcast in folded expressions</li></td></tr><tr> <td width="20%" align="center"> </td> <td width="80%" align="left"><li>Remove code from floating-point to integer conversions that wraps out-of-range values</li></td></tr><tr> <td width="20%" align="center"> </td> <td width="80%" align="left"><li>Inline invariant signals</li></td></tr></table><br /><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_12" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for parameter tunability information ignored for referenced models</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_13" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for implicit signal resolution</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_14" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for optimal bus virtuality</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_15" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for Discrete-Time Integrator blocks with initial condition uncertainty</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_18" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify disabled library links</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_19" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify parameterized library links</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_20" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify unresolved library links</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_21" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper usage of Data Store Memory blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Duplicate data store names</b> checking is not set to 'error'.  Duplicate usage of data store names can lead to unintended shadowing of data stores of higher model scope.  Consider changing this setting to 'error' on the <a href="matlab:modeladvisorprivate('openSimprmAdvancedPage','test','Data Validity')">Data Validity</a> page of the <b>Configuration Parameters</b> dialog box.<p /><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_116" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper bus usage</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_117" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for potentially delayed function-call subsystem return values</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_118" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify block output signals with continuous sample time and non-floating point data type</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_119" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper Merge block usage</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_120" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check consistency of initialization parameters for Outport and Merge blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; <span onclick="MATableShrink(this,'Real-Time Workshop Embedded Coder','SubResults_Real-Time Workshop Embedded Coder')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->Real-Time Workshop Embedded Coder</b></font><span name = "SubResults_Real-Time Workshop Embedded Coder"  style="display:none"  id= "SubResults_Real-Time Workshop Embedded Coder" >&nbsp;&nbsp;<img src="task_passed.png" />6&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />2&nbsp;&nbsp;<img src="icon_task.png" />4</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "Real-Time Workshop Embedded Coder"  id = "Real-Time Workshop Embedded Coder"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_4" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check solver for code generation</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p />Your model specifies a <a href="matlab: modeladvisorprivate openSimprmAdvancedPage test Solver"> variable step solver</a> (ode45).  If you want to generate code from this model, using the Real-Time Workshop Embedded Coder, you must first change its <b>Solver</b> configuration parameter setting to specify a fixed-step, discrete solver.<p>Note that you do not have to change the solver setting to generate code from one of the model's subsystems. This is because the Real-Time Workshop Embedded Coder changes the setting to a fixed-step solver for you when you select <b>Real-Time Workshop&gt;Build Subsystem</b> or <b>Real-Time Workshop&gt;Generate S-Function</b> from the subsystem's context menu.</p><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_5" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify questionable blocks within the specified system</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_6" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for model reference configuration mismatch</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_7" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check the hardware implementation</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p />Your <a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop'"> system target file</a> is <font color="#FF0000">grt.tlc</font>.&nbsp;&nbsp;Consider using <i>ert.tlc</i> or an ERT-based target, such as <i>mpc555_exp.tlc</i>, to generate final production code from this model.<p />You have not specified the <a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Hardware Implementation'"> Device type</a> configuration parameter for this model. This can lead to incorrect and inefficient code being generated from the model.<p>You are using the following specification:</p><table border="0" width="100%">  <tr>    <td width="33%" align="center"> </td>    <td width="33%" align="center"><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test ">Embedded Hardware <br /> (simulation and code generation)</a></td>    <td width="33%" align="center"><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test ">Emulation Hardware <br /> (code generation only)</a></td>  </tr>  <tr>    <td width="33%" align="left">C Type char (bits)</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->8<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->8<!-- mdladv_ignore_finish --></td>  </tr>  <tr>    <td width="33%" align="left">C Type short (bits)</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->16<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->16<!-- mdladv_ignore_finish --></td>  </tr>  <tr>    <td width="33%" align="left">C Type int (bits)</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->32<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->32<!-- mdladv_ignore_finish --></td>  </tr>  <tr>    <td width="33%" align="left">C Type long (bits)</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->32<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->32<!-- mdladv_ignore_finish --></td>  </tr>  <tr>    <td width="33%" align="left">Shift right on signed integer is implemented as arithmetic shift?</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->on<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->on<!-- mdladv_ignore_finish --></td>  </tr>  <tr>    <td width="33%" align="left">Byte ordering</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->Unspecified<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->Unspecified<!-- mdladv_ignore_finish --></td>  </tr>  <tr>    <td width="33%" align="left">Signed integer division rounds to</td>    <td width="33%" align="center"><!-- mdladv_ignore_start -->Undefined<!-- mdladv_ignore_finish --></td>    <td width="34%" align="center"><!-- mdladv_ignore_start -->Undefined<!-- mdladv_ignore_finish --></td>  </tr></table><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_9" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify questionable software environment specifications</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_10" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify questionable code instrumentation (data I/O)</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_11" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for blocks that have constraints on tunable parameters</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 20pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_16" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify questionable subsystem settings</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_17" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Disable signal logging</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_114" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify blocks that generate expensive saturation and rounding code</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_115" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check sample times and tasking mode</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 20pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_122" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify questionable fixed-point operations</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; <span onclick="MATableShrink(this,'Simulink Verification and Validation','SubResults_Simulink Verification and Validation')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->Simulink Verification and Validation</b></font><span name = "SubResults_Simulink Verification and Validation"  style="display:none"  id= "SubResults_Simulink Verification and Validation" >&nbsp;&nbsp;<img src="task_passed.png" />45&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />23&nbsp;&nbsp;<img src="icon_task.png" />9</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "Simulink Verification and Validation"  id = "Simulink Verification and Validation"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; &nbsp; &nbsp; <span onclick="MATableShrink(this,'Modeling Standards','SubResults_Modeling Standards')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->Modeling Standards</b></font><span name = "SubResults_Modeling Standards"  style="display:none"  id= "SubResults_Modeling Standards" >&nbsp;&nbsp;<img src="task_passed.png" />41&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />23&nbsp;&nbsp;<img src="icon_task.png" />9</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "Modeling Standards"  id = "Modeling Standards"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span onclick="MATableShrink(this,'DO-178B Checks','SubResults_DO-178B Checks')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->DO-178B Checks</b></font><span name = "SubResults_DO-178B Checks"  style="display:none"  id= "SubResults_DO-178B Checks" >&nbsp;&nbsp;<img src="task_passed.png" />4&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />16&nbsp;&nbsp;<img src="icon_task.png" />3</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "DO-178B Checks"  id = "DO-178B Checks"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_46" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related optimization settings </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Block reduction optimization is off.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Red">It is recommended to turn off Block reduction optimization option, since this can result in design with no traceable code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Optimization' ">Simulation and code generation: Block reduction</a>
+<p /><b>Verify Conditional input branch execution optimization is off.</b>
+<br />(Reference DO-178B Section 6.4.4.2 - Test coverage of software structure is achieved)<p /><font color="Red">It is recommended to turn off Conditional input branch execution optimization option, since the model coverage tool does not support this optimization.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Optimization' ">Simulation and code generation: Conditional input branch execution</a>
+<p /><b>Verify Implement logic signals as boolean data is on.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<br />(Reference MISRA 2004, Rule 12.6)<p /><font color="Green">Passed</font>
+<p /><b>Verify Application lifespan is inf.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 12.11)<p /><font color="Green">Passed</font>
+<p /><b>Verify Ignore integer downcasts in folded expressions optimization is off; EnforceIntegerDowncast is on.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 10.1)<p /><font color="Green">Passed</font>
+<p /><b>Verify Remove root level I/O zero initialization checkbox is off; ZeroExternalMemoryAtStartup is on.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<br />(Reference MISRA 2004, Rule 9.1)<p /><font color="Green">Passed</font>
+<p /><b>Verify Remove internal state zero initialization optimization checkbox is off; ZeroInternalMemoryAtStartup is on.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<br />(Reference MISRA 2004, Rule 9.1)<p /><font color="Green">Passed</font>
+<p /><b>Verify Remove code from floating-point to integer conversions that wraps out-of-range values optimization is on.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 12.11)<p /><font color="Red">It is recommended to turn on Remove code from floating-point to integer conversions that wraps out-of-range values optimization option, since this can result in incorrect behavior due to overflows of integer data.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Optimization' ">Code generation: Integer and fixed-point: Remove code from floating-point to integer conversions that wraps out-of-range values</a>
+<p /><b>Verify Remove code that protects against division arithmetic exceptions optimization is off.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_47" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for solvers </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Solver - Algebraic Loop is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Solver - Algebraic Loop to error, otherwise Simulink may attempt to automatically break the algebraic loops, which can affect execution order of the blocks.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics' ">Algebraic loop</a>
+<p /><b>Verify Solver - Minimize Algebraic Loop is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Solver - Minimize Algebraic Loop to error, otherwise Simulink may attempt to automatically break the algebraic loops for reference models and atomic subsystems, which can affect the execution order for those models or subsystems.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics' ">Minimize algebraic loop</a>
+<p /><b>Verify Solver - Block Priority Violation is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Solver - Block Priority Violation to error because this indicates there is a potential conflict in the execution order.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics' ">Block priority violation</a>
+<p /><b>Verify Solver - Unspecified Inheritability of Sample Times is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Solver - Unspecified Inheritability of Sample Times to error, since this could result in unpredictable behavior of S-Functions.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics' ">Unspecified inheritability of sample time</a>
+<p /><b>Verify Solver - Automatic Solver Parameter Selection is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Solver - Automatic Solver Parameter Selection to error, otherwise Simulink may attempt to automatically set the solver, step size and stop times which could lead to unpredictable results in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics' ">Automatic solver parameter selection</a>
+<p /><b>Verify Solver - State Name Clash is set to warning.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_48" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for sample time </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Sample Time - Source Block Specifies Inherited Sample Time is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Sample Time - Source Block Specifies Inherited Sample Time to error, since this could result in unpredictable execution rate for the source block and those connected to it.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Sample Time' ">Source Block Specifies -1 Sample Time</a>
+<p /><b>Verify Sample Time - Discrete Set as Continuous is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Sample Time - Discrete Set as Continuous to error, since this could result in unpredictable execution rate for a Unit Delay block.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Sample Time' ">Discrete used as continuous</a>
+<p /><b>Verify Sample Time - Multitask Rate Transition is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Sample Time - Multitask Conditionally Executed Subsystems is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Sample Time - Enforce Sample Times Specified By Signal Specification Blocks is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3e - Software architecture conforms to standards)<p /><font color="Red">It is recommended to set Sample Time - Enforce Sample Times Specified By Signal Specification Blocks to error, since this could result in unpredictable execution rate.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Sample Time' ">Enforce sample times specified by Signal Specification blocks</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_49" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for signal data</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Data Validity: Signals - Signal Resolution is set to Explicit Only: UseLocalSettings.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Data Validity: Signals - Division by Singular Matrix is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Red">It is recommended to set Data Validity: Signals - Division by Singular Matrix to error, since this can result in numerical exceptions in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Signals: Division by singular matrix</a>
+<p /><b>Verify Data Validity: Signals - Underspecified Data Types is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set Data Validity: Signals - Underspecified Data Types to error, since this can result in incorrect data type usage in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Signals: Underspecified data types</a>
+<p /><b>Verify Data Validity: Signals - Detect Overflow is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Red">It is recommended to set Data Validity: Signals - Detect Overflow to error, since this can result in numerical overflows of integers in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Signals: Detect overflow</a>
+<p /><b>Verify Data Validity: Signals - Inf or NaN Block Output is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Red">It is recommended to set Data Validity: Signals - Inf or NaN Block Output to error, since this can result in numerical exceptions in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Signals: Inf or NaN block output</a>
+<p /><b>Verify Data Validity: Signals - "rt" Prefix For Identifiers is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Green">Passed</font>
+<p /><b>Verify Data Validity: Signals: Simulation range checking is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Red">It is recommended to set Data Validity: Signals - Signal Range Checking to error, since out of range data can result in incorrect and unsafe behavior.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Signals: Simulation range checking</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_50" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for parameters </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Data Validity: Parameters - Detect Downcast is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rules 10.1, 10.2, 10.3 10.4)<p /><font color="Green">Passed</font>
+<p /><b>Verify Data Validity: Parameters - Detect Underflow is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Red">It is recommended to set Data Validity: Parameters - Detect Underflow to error, since this can result in a parameter being set to zero instead of the proper value in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Parameters: Detect underflow</a>
+<p /><b>Verify Data Validity: Parameters - Detect Overflow is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<p /><font color="Green">Passed</font>
+<p /><b>Verify Data Validity: Parameters - Detect Precision Loss is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rules 10.1, 10.2, 10.3 10.4)<p /><font color="Red">It is recommended to set Data Validity: Parameters - Detect Precision Loss to error, since this can result in a parameter being set to a different value than the specified value in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Parameters: Detect precision loss</a>
+<p /><b>Verify Data Validity: Parameters - Detect Loss of Tunability is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<p /><font color="Red">It is recommended to set Data Validity: Parameters - Detect Loss of Tunability to error, since this can result in a tunable parameter being reduced to a numerical value and therefore the parameter value will not be tunable in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Parameters: Detect loss of tunability</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_51" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for data used for debugging </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Data Validity: Debugging - Model Verification Block Enabling is set to DisableAll.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set Data Validity: Debugging - Model Verification Block Enabling to DisableAll, since assertion blocks are intended for verification only.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Debugging: Model Verification block enabling</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_52" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for data store memory </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Data Validity: Data Store Memory Block - Detect Read Before Write is set to EnableAllAsError.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Data Validity: Data Store Memory Block - Detect Read Before Write to EnableAllAsError, since this can result in un-initialized or stale data in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Data Store Memory Block: Detect read before write</a>
+<p /><b>Verify Data Validity: Data Store Memory Block - Detect Write After Read is set to EnableAllAsError.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Data Validity: Data Store Memory Block - Detect Write After Read to EnableAllAsError, since this can result in the use of stale data in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Data Store Memory Block: Detect write after read</a>
+<p /><b>Verify Data Validity: Data Store Memory Block - Detect Write After Write is set to EnableAllAsError.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Data Validity: Data Store Memory Block - Detect Write After Write to EnableAllAsError, since this can result in unpredictable data in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Data Store Memory Block: Detect write after write</a>
+<p /><b>Verify Data Validity: Data Store Memory Block - Multitask Data Store is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_53" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for type conversions </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Type Conversion: Unnecessary Type Conversions is set to warning.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<p /><font color="Red">It is recommended to set Type Conversion: Unnecessary Type Conversions to warning, since the code generator will optimize these out, leading to requirements with no associated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Type Conversion' ">Unnecessary type conversion</a>
+<p /><b>Verify Type Conversion: Vector/Matrix Block Input Conversion is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<p /><font color="Red">It is recommended to set Type Conversion: Vector/Matrix Block Input Conversion to error, since automatic conversions between vector and matrix data can lead to unpredictable operations in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Type Conversion' ">Vector/matrix block input conversion</a>
+<p /><b>Verify Type Conversion: 32 Bit Integer To Single Precision Float Conversion is set to warning.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rules 10.1, 10.2, 10.3 10.4)<p /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_54" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for signal connectivity </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Connectivity: Signals - Signal Label Mismatch is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set Connectivity: Signals - Signal Label Mismatch to error, since this can result in confusing models.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Signals: Signal label mismatch</a>
+<p /><b>Verify Connectivity: Signals - Unconnected Block Input Ports is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set Connectivity: Signals - Unconnected Block Input Ports to error, since this will prevent code generation.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Signals: Unconnected block input ports</a>
+<p /><b>Verify Connectivity: Signals - Unconnected Block Output Ports is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set Connectivity: Signals - Unconnected Block Output Ports to error, since this can lead to dead code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Signals: Unconnected block output ports</a>
+<p /><b>Verify Connectivity: Signals - Unconnected Lines is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set Connectivity: Signals - Unconnected Lines to error, since this will prevent code generation.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Signals: Unconnected line</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_55" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for bus connectivity </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Connectivity: Buses - Unspecified Bus Object At Root Outport Block is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Connectivity: Buses - Unspecified Bus Object At Root Outport Block to error, since this can lead to an unspecified interface if the model is referenced from another model.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Buses: Unspecified Bus Object At Root Outport Block</a>
+<p /><b>Verify Connectivity: Buses - Element Name Mismatch is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Connectivity: Buses - Element Name Mismatch to error, since this can lead to an incorrect interface in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Buses: Element name mismatch</a>
+<p /><b>Verify Connectivity: Buses - Configuration Parameter "StrictBusMsg" set to ErrorOnBusTreatedAsVector.</b>
+<br />Buses - Mux Blocks Used To Create Bus Signals is set to error.<br />Buses - Bus signal treated as vector is set to error.<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Connectivity: Buses - Mux Blocks Used To Create Bus Signals to ErrorOnBusTreatedAsVector, since this can lead to an unintended bus being created in the model.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Buses: Mux blocks used to create bus signals, Bus signal treated as vector</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_56" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings that apply to function-call connectivity</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Connectivity: Function Calls - Invalid Function-Call Connection is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Connectivity: Function Calls - Context-Dependent Inputs is set to Enable All.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Connectivity: Function Calls - Context-dependent inputs to Enable All, since this can lead to incorrect data coupling in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Connectivity' ">Function calls: Context-dependent inputs</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_57" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for compatibility</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Compatibility: S-Function Upgrades Needed is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Compatibility: S-Function Upgrades Needed to error, since this can lead to incorrect operation in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Compatibility' ">S-function upgrades needed</a>
+<p /><b>Verify Compatibility: Check Undefined Subsystem Initial Output is set to on.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<br />(Reference MISRA 2004, Rule 9.1)<p /><font color="Green">Passed</font>
+<p /><b>Verify Compatibility: Check Pre-activation Output of Execution Context is set to on.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<br />(Reference MISRA 2004, Rule 9.1)<p /><font color="Red">It is recommended to set Compatibility: Check Pre-activation Output of Execution Context to on, since this can lead to uninitialized data in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Check preactivation output of execution context</a>
+<p /><b>Verify Compatibility: Check Runtime Output of Execution Context is set to on.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<br />(Reference MISRA 2004, Rule 9.1)<p /><font color="Red">It is recommended to set Compatibility: Check Runtime Output of Execution Context to on, since this can lead to unpredictable data being used in the generated code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Check runtime output of execution context</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_58" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for model referencing </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Model Referencing: Model Block Version Mismatch is set to none.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Model Referencing: Port And Parameter Mismatch is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Model Referencing: Port And Parameter Mismatch to error, since this can lead to incorrect simulation results because the parent and reference models have different interfaces.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Model Referencing' ">Port and parameter mismatch</a>
+<p /><b>Verify Model Referencing: Model Configuration Mismatch is set to warning.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Model Referencing: Model Configuration Mismatch to warning, since some diagnostics are ignored for model reference simulation targets, but other in compatible settings could lead to incorrect simulation results.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Model Referencing' ">Model configuration mismatch</a>
+<p /><b>Verify Model Referencing: Invalid Root Inport/Outport Block Connection is set to error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Model Referencing: Invalid Root Inport/Outport Block Connection to error, since this can lead to incorrect simulation results because the model version and code version are different.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Model Referencing' ">Invalid root Inport/Outport block connection</a>
+<p /><b>Verify Model Referencing: Unsupported Data Logging is set to error.</b>
+<br />(Reference DO-178B Section 6.3.1d - High-level requirements are verifiable)<br />(Reference DO-178B Section 6.3.2d - Low-level requirements are verifiable)<p /><font color="Red">It is recommended to set Model Referencing: Unsupported Data Logging to error, since this can result in loss of logged data during verification testing.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Model Referencing' ">Unsupported data logging</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_59" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related model referencing settings</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Model Reference: Rebuild options is set to "Never" or "If any changes detected".</b>
+<br />(Reference DO-178B Section 6.3.1b - High-level requirements are accurate and consistent)<br />(Reference DO-178B Section 6.3.2b - Low-level requirements are accurate and consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Model Reference: Pass scalar root inputs by value is set to off.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<p /><b>Verify Model Reference: Minimize algebraic loop occurrences is set to off.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_60" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related code generation settings</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Include comments is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Green">Passed</font>
+<p /><b>Verify Simulink block comments is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Green">Passed</font>
+<p /><b>Verify Show eliminated blocks is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Red">It is recommended to turn on Show eliminated blocks in order to provide traceable code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Comments' ">Auto generated comments: Show eliminated blocks</a>
+<p /><b>Verify Verbose comments for SimulinkGlobal storage class is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Red">It is recommended to turn on Verbose comments for SimulinkGlobal storage class in order to provide traceable code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Comments' ">Auto generated comments: Verbose comments for SimulinkGlobal storage class</a>
+<p /><b>Verify Requirements in block comments is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Red">It is recommended to turn on Requirements in block comments in order to provide enhanced traceability.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Comments' ">Custom Comments: Requirements in block comments</a>
+<p /><b>Verify Support non-finite numbers is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn off Support non-finite numbers since these are not appropriate for real-time embedded systems.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Software environment: Support: non-finite numbers</a>
+<p /><b>Verify Support absolute time is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn off Support absolute time since this is not appropriate for real-time embedded systems.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Software environment: Support: absolute time</a>
+<p /><b>Verify Support continuous time is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn off Support continuous time since this is not appropriate for real-time embedded systems.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Software environment: Support: continuous time</a>
+<p /><b>Verify Support non-inlined S-Functions is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn off Support non-inlined S-Functions since this would require that non-finite numbers be supported.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Software environment: Support: non-inlined S-functions</a>
+<p /><b>Verify GRT compatible call interface is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">Failed.  Could not find parameter GRTInterface in model configuration.</font>
+<p /><b>Verify Single output/update function is on.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn on Single output/update function since this simplifies the call to the executable code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Code Interface: Single output/update function</a>
+<p /><b>Verify Terminate function required is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn off Terminate function required since this requires the use of dynamic memory allocation and is not appropriate for real-time embedded systems.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Code interface: Terminate function required</a>
+<p /><b>Verify Suppress error status in real-time model data structure is on.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn on Suppress error status in real-time model data structure since this may result in unreachable code.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Code interface: Suppress error status in real-time model data structure</a>
+<p /><b>Verify MAT file data logging is off.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<p /><font color="Red">It is recommended to turn off MAT file data logging since this is not appropriate for real-time embedded systems.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Interface' ">Verification: MAT-file logging</a>
+<p /><b>Verify Parentheses level is Maximum.</b>
+<br />(Reference DO-178B Section 6.3.1c - High-level requirements are compatible with target computer)<br />(Reference DO-178B Section 6.3.2c - Low-level requirements are compatible with target computer)<br />(Reference MISRA 2004, Rule 12.1)<p /><font color="Red">It is recommended to set Parentheses level to Maximum since this will satisfy MISRA-C coding standards.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Code Style' ">Code Style: Parentheses level</a>
+<p /><b>Verify Preserve operand order in expression is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Red">Failed.  Could not find parameter PreserveExpressionOrder in model configuration.</font>
+<p /><b>Verify Preserve condition expression in if statement is on.</b>
+<br />(Reference DO-178B Section 6.3.4e - Source code is traceable to low-level requirements)<p /><font color="Red">Failed.  Could not find parameter PreserveIfCondition in model configuration.</font>
+<p /><b>Verify Minimum mangle length is 4 or greater.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<p /><font color="Red">It is recommended to set the Minimum mangle length to 4 or greater.  This minimizes the code changes when a model is modified, which simplifies code reviews.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Real-Time Workshop/Symbols' ">Auto-generated identifier naming rules: Minimum mangle length</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_61" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check safety-related diagnostic settings for saving </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>Verify Diagnostics: Saving - Block diagram contains disabled library links is set to error: error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Diagnostics: Saving - Block diagram contains disabled library links to error since saving with disabled library links may result in the model being inconsistent with the library the next time it is opened.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Saving' ">Saving: Block diagram contains disabled library links</a>
+<p /><b>Verify Diagnostics: Saving - Block diagram contains parameterized library links is set to error: error.</b>
+<br />(Reference DO-178B Section 6.3.3b - Software architecture is consistent)<p /><font color="Red">It is recommended to set Diagnostics: Saving - Block diagram contains parameterized library links is set to error since saving with parameterized library links may result in the model being inconsistent with the library block.</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Saving' ">Saving: Block diagram contains parameterized library links</a>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_62" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for blocks that do not link to requirements</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font color="Red">The following blocks do not have a link to a requirement:</font>
+<br />(Reference DO-178B Section 6.3.1f - High-level requirements trace to system requirements)<br />(Reference DO-178B Section 6.3.2f - Low-level requirements trace to high-level requirements)<p /><p /><a href="matlab: modeladvisorprivate hiliteSystem test 62_1">test/Corner Detection</a><p /><a href="matlab: modeladvisorprivate hiliteSystem test 62_2">test/From Video Device</a><p /><a href="matlab: modeladvisorprivate hiliteSystem test 62_3">test/Video Display</a><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_63" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper usage of Math blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>There are no Math blocks to analyze in test.</b>
+<br />(Reference DO-178B Section 6.3.1g - Algorithms are accurate)<br />(Reference DO-178B Section 6.3.2g - Algorithms are accurate)<br />(Reference MISRA 2004, Rule 21.1)<br /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_64" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper usage of For Iterator blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>There are no ForIterator blocks in test.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<br />(Reference MISRA 2004, Rule 13.6)<br /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_65" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper usage of While Iterator blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><b>There are no WhileIterator blocks in test.</b>
+<br />(Reference DO-178B Section 6.3.1e - High-level requirements conform to standards)<br />(Reference DO-178B Section 6.3.2e - Low-level requirements conform to standards)<br />(Reference MISRA 2004, Rule 21.1)<br /><font color="Green">Passed</font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_123" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Display model version information</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_124" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper usage of blocks that compute absolute values</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_125" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper usage of Relational Operator blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span onclick="MATableShrink(this,'IEC 61508 Checks','SubResults_IEC 61508 Checks')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->IEC 61508 Checks</b></font><span name = "SubResults_IEC 61508 Checks"  style="display:none"  id= "SubResults_IEC 61508 Checks" >&nbsp;&nbsp;<img src="task_passed.png" />4&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />1&nbsp;&nbsp;<img src="icon_task.png" />2</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "IEC 61508 Checks"  id = "IEC 61508 Checks"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_66" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Display model metrics and complexity report</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><p align="left">Display number of elements and name, level, and depth of subsystems for the model or subsystem <br /><br /><b>Model metrics information</b>
+<br />Display number of elements for Simulink blocks and Stateflow constructs<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.9 (5) 'Software complexity metrics'</li>
+</ul>
+<br />Summary<table border="1"><tr><td align="left"><b>Element Type     </b>
+</td>
+<td align="left"><b>Count</b>
+</td>
+</tr>
+<tr><td align="left">Inport</td>
+<td align="left">    1</td>
+</tr>
+<tr><td align="left">Outport</td>
+<td align="left">    2</td>
+</tr>
+<tr><td align="left">SubSystem</td>
+<td align="left">    1</td>
+</tr>
+<tr><td align="left">Stateflow</td>
+<td align="left">    0</td>
+</tr>
+</table>
+<br /></p>
+<p align="left"><br />Simulink<table border="1"><tr><td align="left"><b>Block Type</b>
+</td>
+<td align="left"><b>Count</b>
+</td>
+</tr>
+<tr><td align="left">S-Function</td>
+<td align="left">    4</td>
+</tr>
+<tr><td align="left">Outport</td>
+<td align="left">    2</td>
+</tr>
+<tr><td align="left">SubSystem</td>
+<td align="left">    1</td>
+</tr>
+<tr><td align="left">Inport</td>
+<td align="left">    1</td>
+</tr>
+</table>
+<br /></p>
+<p align="left"><b>Model complexity information</b>
+<br />Display name, level, and depth of subsystems<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.9 (5) 'Software complexity metrics'</li>
+</ul>
+<br />Maximum Subsystem Depth: 2<br><br>Subsystem Depth<table border="1"><tr><td align="left"><b>Subsystem Name</b>
+</td>
+<td align="left"><b>Level</b>
+</td>
+<td align="left"><b>Depth</b>
+</td>
+</tr>
+<tr><td align="left">Corner Detection</td>
+<td align="left">    1</td>
+<td align="left">    1</td>
+</tr>
+</table>
+<br /></p>
+<br /><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_67" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for unconnected objects </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p align="left">Identify unconnected lines, input ports, and output ports in the model<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (3) 'Language subset'</li>
+</ul>
+<b><font color="Orange">Warning </font>
+</b>
+<br />The following lines, input ports, or output ports are not properly connected in system: test<ul><li><a href="matlab: modeladvisorprivate hiliteSystem testzfCornerzsDetection">test/Corner Detection</a>
+</li>
+</ul>
+<b>Recommended Action</b>
+<br />Connect the blocks specified in the list</p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_68" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for fully defined interface </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p align="left">Identify Inport blocks in the top-level of the model that do not have fully defined properties<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table B.9 (5) 'Fully defined interface'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />There are no Inport blocks in the top-level of the model that do not have fully defined properties</p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_69" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for questionable constructs </b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p align="left"><b>Check for usage of Gain blocks</b>
+<br />Identify Gain blocks whose value equals 1<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (3) 'Language subset'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />There are no Gain blocks whose value equals 1 in the model or subsystem</p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_70" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check usage of Stateflow constructs</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p />Identify usage of Stateflow constructs that might impact safety<p align="left"><b>Check for Strong Data Typing with Simulink I/O </b>
+<br />Verify configuration settings for strong data typing on the boundaries between Simulink and Stateflow constructs<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (2) 'Strongly typed programming language'</li>
+<li>MISRA-C:2004, Rule 10.1 </li>
+<li>MISRA-C:2004, Rule 10.2 </li>
+<li>MISRA-C:2004, Rule 10.3 </li>
+<li>MISRA-C:2004, Rule 10.4 </li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />'Use Strong Data Typing with Simulink I/O' is selected<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<p align="left"><b>Check Stateflow port naming </b>
+<br />Identify mismatches between names of Stateflow ports and associated signals <br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (3) 'Language subset'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />There are no name mismatches between Stateflow ports and associated signals<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<p align="left"><b>Check Stateflow event scoping </b>
+<br />Identify Stateflow events are not scoped at the chart level or below<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (3) 'Language subset'</li>
+<li>IEC 61508-3, Table B.9 (2) 'Information hiding/encapsulation'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />All Stateflow events are properly scoped<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<p align="left"><b>Check Stateflow data object scoping </b>
+<br />Identify Stateflow data objects with local scope that are not scoped at the chart level or below<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (3) 'Language subset'</li>
+<li>IEC 61508-3, Table B.9 (2) 'Information hiding/encapsulation'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />All Stateflow data objects are properly scoped.<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<p align="left"><b>Check formatting of Stateflow state actions </b>
+<br />Identify missing new lines in state actions after entry (en), during (du), and exit (ex) statements as well as after the completion of assignment statements (;)<br /><br /><b>See Also</b>
+<ul><li>IEC 61508-3, Table A.3 (3) 'Language subset'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />All state actions are formatted properly</p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_126" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Display configuration management data</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_127" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check usage of Simulink constructs</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span onclick="MATableShrink(this,'MathWorks Automotive Advisory Board Checks','SubResults_MathWorks Automotive Advisory Board Checks')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->MathWorks Automotive Advisory Board Checks</b></font><span name = "SubResults_MathWorks Automotive Advisory Board Checks"  style="display:none"  id= "SubResults_MathWorks Automotive Advisory Board Checks" >&nbsp;&nbsp;<img src="task_passed.png" />33&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />6&nbsp;&nbsp;<img src="icon_task.png" />4</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "MathWorks Automotive Advisory Board Checks"  id = "MathWorks Automotive Advisory Board Checks"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_75" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for difference in font and font sizes</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0043: Simulink font and font size </font><p /><font color="Green">All block and line fonts have consistent names, sizes, and style.</font>
+<p />Font "auto (Helvetica)" is used consistently on all lines and blocks.<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_76" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check Transition orientations in flowcharts</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0132: Transitions in flowcharts </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_77" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for display of nondefault block attributes</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0140: Display of basic block attributes </font><p />Model displays all block parameter values that are not default values.<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_78" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper labeling on signal lines.</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: na_0008: Proper labeling of signal lines </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_79" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for propagated labels on signal lines</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: na_0009: Proper labeling for propagated signal lines </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_80" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check default transition placement in Stateflow charts</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0531: Placement of default transition </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_81" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check setting Stateflow graphical function return value</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0511: Setting the return value from a graphical function </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_82" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for blocks that do not use one-based indexing</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0112: Indexing  </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_83" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for invalid filenames</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: ar_0001: Filenames </font><p />The following files, which reside in the same directory as the model, have invalid filenames: <br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />1cd-commando-dvdscreener-xvid-ddr.avi<br /><font color="Red">Filename starts with a number.</font>
+<br />1cd-commando-dvdscreener-xvid-ddr.avi<br /><font color="Red">Filename starts with a number.</font>
+<br />264420_538255522882898_372666759_n.jpg<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />DSTO-TN-0403.pdf<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />Invictus[2009]DvDrip-aXXo.avi<br /><font color="Red">Filename contains more than one dot (.).</font>
+<br />Kaate Nahin Kat Te Din Ye Raat Remix  Feat. Hot 'n' Sizzling Bhojpuri Bombshell Babe Monalisa.mp4<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />Kaate Nahin Kat Te Din Ye Raat Remix  Feat. Hot 'n' Sizzling Bhojpuri Bombshell Babe Monalisa.mp4<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />Logic Eigth Edition.pdf<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />Stranger Than Fiction.avi<br /><font color="Red">Filename contains more than one dot (.).</font>
+<br />Through.The.Wormhole.Mystries.of.subconsious.DVDRip.x264.AAC.mp4<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />Toni Igy - Toni Igy_-_AsTRonoMia.mp3<br /><font color="Red">Filename contains more than one dot (.).</font>
+<br />WWE.Friday.Night.Smackdown.2013.04.26!!GodF@ther.mp4<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />WWE.Friday.Night.Smackdown.2013.04.26!!GodF@ther.mp4<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />Wall-E[2008]DvDrip-aXXo.avi<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />_Badtameez Dil_ Yeh Jawaani Hai Deewani Full Song (Official).mp4<br /><font color="Red">Filename starts with an underscore (_).</font>
+<br />_Badtameez Dil_ Yeh Jawaani Hai Deewani Full Song (Official).mp4<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />khoon choos le.webm<br /><font color="Red">Filename contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br />must listen.flv<br />.<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_84" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for invalid model directory names</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: ar_0002: Directory names </font><p />The following subdirectory names in the model directory include invalid characters: <br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/A.Scanner.Darkly[2006]DvDrip[Eng]-aXXo<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Connectify Hotspot PRO v3.7.1.25486 Cracked-Raj.NewEra<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Empire of the Sun<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Hachiko - A Dog's Tale (2009)<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Jack.Reacher.2012.720p.BRRip.x264-TeRRa<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Microsoft Visual Studio 2010 Ultimate  [English]<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/New folder<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/New folder (3)<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/PTSP Mid Term<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Pulp Fiction<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Rain Man [Eng][XviD][1988]<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Suicide.Circle.2002.DVDRip.XviD-TheWretched<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/The Reader (2008)[PSK]<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/The.Fountain[2006]DvDrip[Eng]-aXXo<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/The.Mechanic.2011.R5.LiNE.AC3-T0XiC-iNK<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Trainspotting 1996 BRRip 480p X264 ExtraTorrentRG<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/Turtles Can Fly<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/WWE.Wrestlemania.28.HDTV.x264-RUDOS<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/honey singh<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/open vpn<br /><font color="Red">Directory name contains invalid characters. Valid characters are a-z, A-Z, 0-9, and underscore (_).</font>
+<br /><!-- mdladv_ignore_start -->C:/Users/abhinash/<!-- mdladv_ignore_finish -->Desktop/pcasift-0.91nd<br /><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_85" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for blocks that are not discrete.</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jm_0001: Prohibited Simulink standard blocks inside controllers </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_86" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for prohibited sink blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: hd_0001: Prohibited Simulink sink blocks </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_87" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for invalid port positioning and configuration</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0042: Ports in Simulink models </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_88" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for mismatches between names of ports and corresponding signals</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jm_0010: Port block names in Simulink models </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_89" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether block names appear below blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0142: Position of block names </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_90" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for systems that mix primitive blocks and subsystems</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0143: Each level of a model must be designed with blocks of the same type (for example, only subsystems or only basic blocks). </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_91" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether model has unconnected block input ports, output ports, or signal lines</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0081: Unconnected signals, block input ports, and block output ports </font><p />The following blocks have unconnected input ports or output ports: <p /><p /><a href="matlab: modeladvisorprivate hiliteSystem test 91_1">test/Corner Detection</a><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_92" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for improperly positioned Trigger and Enable blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0146:Triggered or enabled subsystems </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_93" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether annotations have drop shadows</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jm_0013: Annotations </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_94" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether tunable parameters specify expressions, data type conversions, or indexing operations</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0110: Tunable parameters in basic blocks </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_95" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether Stateflow events are defined at the chart level or below</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0126: Scope of events </font><p align="left"><b>Check for proper Stateflow event scoping </b>
+<br />Identify Stateflow events are not scoped at the chart level or below<br /><br /><b>See Also</b>
+<ul><li>MAAB Control Algorithm Modeling Guidelines, db_0126 'Scope of Events'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />All Stateflow events are properly scoped.
+Passed<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_96" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether Stateflow data objects with local scope are defined at the chart level or below</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0125: Scope of internal signals and local auxiliary variables </font><p align="left"><b>Check for proper Stateflow data object scoping</b>
+<br />Identify Stateflow data objects with local scope that are not scoped at the chart level or below<br /><br /><b>See Also</b>
+<ul><li>MAAB Control Algorithm Modeling Guidelines, db_0125 'Scope of internal signals and local auxiliary variables'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />All Stateflow data objects are properly scoped.
+Passed<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_97" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check interface signals and parameters</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0122: Stateflow and Simulink interface signals and parameters.
+
+Check whether labeled input and output signals are strongly typed </font><p align="left"><b>Check for Strong Data Typing with Simulink I/O</b>
+<br />Verify configuration settings for strong data typing on the boundaries between Simulink and Stateflow  <br /><br /><b>See Also</b>
+<ul><li>MAAB Control Algorithm Modeling Guidelines, db_0122 'Stateflow and Simulink interface signals and parameters' </li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />Strong Data Typing with Simulink I/O is set to on.
+Passed<hr WIDTH="50%" ALIGN = "left"  SIZE="2"></hr></p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_98" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for exclusive states, default states, and substate validity</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: db_0137: States in state machines.
+There must be at least two exclusive states. A state cannot have only one substate. The initial state of a hierarchical level with exclusive states is clearly defined by a default transition. </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_99" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check optimization parameters for Boolean data types</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0011: Optimization parameters for Boolean data types.
+Optimization option for Boolean data types must be enabled (on). </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_100" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check model diagnostic settings</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0021: Model diagnostic settings </font><p /><b>Verify Solver - "Algebraic loop" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Solver - "Minimize algebraic loop" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Sample Time - "Multitask rate transition" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Data Validity: Signals - "Inf or NaN block output" is set to error or warning</b>
+<p /><font color="Red">Verify Data Validity: Signals - "Inf or NaN block output" is set to error or warning</font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Signals  - Inf or NaN block output</a>
+<p /><b>Verify Data Validity: Data Store Memory Block - "Duplicate data store names" is set to error or warning</b>
+<p /><font color="Red">Set Data Validity: Data Store Memory Block - "Duplicate data store names" to error or warning. Otherwise, generated code might include variable names that are not unique. </font>
+<br /><a href="matlab: modeladvisorprivate openSimprmAdvancedPage test 'Diagnostics/Data Validity' ">Data Store Memory Block - Duplicate data store names</a>
+<p /><b>Verify Connectivity: Signals - "Unconnected block input ports" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Connectivity: Signals - "Unconnected block output ports" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Connectivity: Signals - "Unconnected line" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Connectivity: Buses - "Unspecified bus object at root Outport block" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Connectivity: Buses - "Mux blocks used to create bus signals" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Connectivity: Buses - "Element name mismatch" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Verify Connectivity: Function Calls - "Invalid function-call connection" is set to error or warning</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_101" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check the display attributes of block names</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0061: Display of block names </font><p /><b>Display  a block name if the block appearance reflects its function.</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Display a block name if it provides descriptive information.</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_102" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check Icon display parameter for port blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0081: Icon display for port block
+Icon display parameter for Inport and Outport blocks should be set to "Port number." </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_103" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether subsystem block names include invalid characters</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0201: Subsystem block names include invalid characters </font><p /><b>The following subsystem block names do not comply with jc_201 guideline:</b>
+<p /><font color="Red">Name contains invalid characters.</font>
+<p /><p /><a href="matlab: modeladvisorprivate hiliteSystem test 103_1">test/Corner Detection</a><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_104" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether Inport and Outport block names include invalid characters</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0211: Inport or Outport block names include invalid characters </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_105" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether signal line names include invalid characters</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0221: Signal line names include invalid characters </font><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_106" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check whether block names include invalid characters</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0231: Block names include invalid characters   </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_107" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check Trigger and Enable Port block names</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0281: Naming of Trigger block and Enable block.
+Names of Trigger and Enable blocks should match the name of the signal that triggers the subsystem. </font><p /><b>Trigger block names match signal names</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<p /><b>Enable block names match signal names</b>
+<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Warning Check" id = "Warning Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_108" /><!-- mdladv_ignore_start --><img border="0" src="task_warning.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for Simulink diagrams that have nonstandard appearance attributes</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: na_0004: Simulink model appearance </font><p /><b>The following format display settings failed:</b>
+<br /><font color="Red">Enable (check) Format > Port/Signal Displays > Wide Nonscalar Lines </font>
+<br /><p /><p /><a href="matlab: modeladvisorprivate hiliteSystem test 108_1">test</a><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_109" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check visibility of block port names</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: na_0005: Block port name visibility.
+This check ignores masked and subsystem blocks. </font><p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_110" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for direction of subsystem blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0111: Direction of subsystem </font><p />All subsystem blocks are using correct orientation (right).<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_111" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper position of constants used in Relational Operator blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0131: Use of relational operators with constant input values </font><p />When you use a Relational Operator block to compare a signal with a constant, the constant should be the second (lower) input value.<p /><b>This model contains no Relational Operator blocks.</b>
+<br /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_112" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for entry format in state blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0501: Format of entry in state blocks </font><p align="left"><b>Check for proper formatting of Stateflow state actions </b>
+<br />Identify missing new lines in state actions after entry (en), during (du), and exit (ex) statements as well as after the completion of assignment statements (;)<br /><br /><b>See Also</b>
+<ul><li>MAAB Control Algorithm Modeling Guidelines, jc_0501 'Format of entries in a State block'</li>
+</ul>
+<b><font color="Green">Passed </font>
+</b>
+<br />All state actions are formatted properly.
+Passed</p>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 40pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_113" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for use of tunable parameters in Stateflow</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><font size="-1">MathWorks Automotive Advisory Board Style Guideline: jc_0541: Use of tunable parameters in Stateflow </font><p />Include tunable parameters in a chart as inputs from the Simulink model.<p /><font color="Green"><font color="#008000">Passed</font></font>
+<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_128" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper use of Switch blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_129" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper use of signal busses and Mux block usage</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_130" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for mismatches between names of Stateflow ports and their associated signals</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Not Run Check" id = "Not Run Check" style="margin-left: 40pt;"> <!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_131" /><!-- mdladv_ignore_start --><img border="0" src="icon_task.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Check for proper scope of From and Goto blocks</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p />Not Run<!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><br /><br /><font color="#800000"><b><!-- mdladv_ignore_start -->&nbsp; &nbsp; &nbsp; &nbsp; <span onclick="MATableShrink(this,'Requirements Consistency','SubResults_Requirements Consistency')"  onmouseover= "this.style.cursor = 'pointer' "><img src="minus.png"/></span><!-- mdladv_ignore_finish -->Requirements Consistency</b></font><span name = "SubResults_Requirements Consistency"  style="display:none"  id= "SubResults_Requirements Consistency" >&nbsp;&nbsp;<img src="task_passed.png" />4&nbsp;&nbsp;<img src="task_failed.png" />0&nbsp;&nbsp;<img src="task_warning.png" />0&nbsp;&nbsp;<img src="icon_task.png" />0</span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><span name = "Requirements Consistency"  id = "Requirements Consistency"><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 30pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_71" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify requirement links with missing documents</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 30pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_72" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify requirement links that specify invalid locations within documents</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 30pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_73" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify selection-based links having description that do not match their requirements document text</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --><div name = "Passed Check"  id = "Passed Check" style="margin-left: 30pt;"><!-- mdladv_ignore_finish -->
+<p><hr /></p>  <A NAME="CheckRecord_74" /><!-- mdladv_ignore_start --><img border="0" src="task_passed.png" /><!-- mdladv_ignore_finish --><font size="+1"><!-- mdladv_ignore_start --></font><!-- mdladv_ignore_finish --><b>Identify requirement links with path type inconsistent with preferences</b><!-- mdladv_ignore_start --><font><!-- mdladv_ignore_finish --></font>
+<p /><p /><font color="#008000">Passed</font><!-- mdladv_ignore_start --></div><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish --><!-- mdladv_ignore_start --></span><!-- mdladv_ignore_finish -->
+
+</body>  
+</html>  

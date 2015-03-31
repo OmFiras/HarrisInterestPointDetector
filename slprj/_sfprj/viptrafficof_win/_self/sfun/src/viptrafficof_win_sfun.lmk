@@ -1,0 +1,36 @@
+CC     = "c:\program files (x86)\matlab\r2009a\sys\lcc\bin\lcc.exe"
+LD     = "c:\program files (x86)\matlab\r2009a\sys\lcc\bin\lcclnk.exe"
+LIBCMD = "c:\program files (x86)\matlab\r2009a\sys\lcc\bin\lcclib.exe"
+CFLAGS = -c -Zp8 -DMATLAB_MEX_FILE -noregistrylookup
+LDFLAGS = -s -dll -L"c:\program files (x86)\matlab\r2009a\sys\lcc\lib"
+LIBFLAGS = 
+
+OBJECTS = \
+	"viptrafficof_win_sfun.obj"\
+	"viptrafficof_win_sfun_registry.obj"\
+	"c1_viptrafficof_win.obj"\
+	"lccstub.obj"\
+	"c:\program files (x86)\matlab\r2009a\sys\lcc\mex\lccdef.def"\
+	"c:\program files (x86)\matlab\r2009a\stateflow\c\debugger\lib\win32\sfc_debuglcc.lib"\
+	"c:\program files (x86)\matlab\r2009a\stateflow\c\mex\lib\win32\sfc_mexlcc.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libmex.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libmx.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libfixedpoint.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libut.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libmwmathutil.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libemlrt.lib"\
+	"c:\program files (x86)\matlab\r2009a\extern\lib\win32\lcc\libmwblascompat32.lib"\
+
+INCLUDE_PATH= -I"c:\program files (x86)\matlab\r2009a\sys\lcc\include"  -I"c:\program files (x86)\matlab\r2009a\extern\include"  -I"c:\program files (x86)\matlab\r2009a\simulink\include"  -I"c:\program files (x86)\matlab\r2009a\stateflow\c\mex\include"  -I"c:\program files (x86)\matlab\r2009a\stateflow\c\debugger\include" 
+ 
+
+viptrafficof_win_sfun.mexw32 : $(MAKEFILE) $(OBJECTS)
+	$(LD) $(LDFLAGS) -o viptrafficof_win_sfun.mexw32 @viptrafficof_win_sfun.lmko
+viptrafficof_win_sfun.obj :	"viptrafficof_win_sfun.c"
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) "viptrafficof_win_sfun.c"
+viptrafficof_win_sfun_registry.obj :	"viptrafficof_win_sfun_registry.c"
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) "viptrafficof_win_sfun_registry.c"
+c1_viptrafficof_win.obj :	"c1_viptrafficof_win.c"
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) "c1_viptrafficof_win.c"
+lccstub.obj :	"c:\program files (x86)\matlab\r2009a\sys\lcc\mex\lccstub.c"
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) "c:\program files (x86)\matlab\r2009a\sys\lcc\mex\lccstub.c"
